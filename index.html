@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BEC Student Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  font-family:'Poppins',sans-serif;
+  background:#f4f6f8;
+  margin:0;
+  padding:16px;
+}
+.card{
+  max-width:420px;
+  margin:auto;
+  background:#fff;
+  border-radius:22px;
+  padding:18px;
+  box-shadow:0 8px 25px rgba(0,0,0,.1);
+}
+h1{
+  text-align:center;
+  font-size:22px;
+  margin:0;
+  color:#1e40af;
+}
+h2{
+  text-align:center;
+  font-size:14px;
+  margin:6px 0 12px;
+  color:#0f766e;
+}
+
+.date{
+  text-align:center;
+  font-size:12px;
+  color:#555;
+  margin-bottom:12px;
+}
+
+/* Search */
+.search{
+  display:flex;
+  gap:8px;
+}
+.search input{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ccc;
+}
+.search button{
+  padding:12px 16px;
+  border:none;
+  border-radius:12px;
+  background:#1e40af;
+  color:#fff;
+}
+
+/* Sections */
+.section{
+  border-radius:16px;
+  padding:14px;
+  margin-top:14px;
+}
+.section h3{
+  margin:0 0 10px;
+  font-size:15px;
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px dashed #ddd;
+  font-size:13px;
+}
+.row:last-child{border-bottom:none}
+
+/* Colors */
+.green{background:#e6f7ef}
+.yellow{background:#fff4e5}
+.purple{background:#f3e8ff}
+
+/* Signatures */
+.signs{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+}
+.sign{
+  flex:1;
+  border:2px dashed #aaa;
+  border-radius:14px;
+  padding:10px;
+  text-align:center;
+  font-size:12px;
+}
+
+/* Footer */
+.footer{
+  font-size:11px;
+  text-align:center;
+  margin-top:14px;
+  color:#333;
+}
+
+/* Buttons */
+.buttons{
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+}
+.buttons button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-size:13px;
+  color:#fff;
+}
+.print{background:#166534}
+.new{background:#6b7280}
+.pdf{background:#7f1d1d}
+
+@media print{
+  .search,.buttons{display:none}
+  body{background:#fff}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>BUKHARIYA EDUCATIONAL CENTRE</h1>
+<h2>Student Performance, Attendance & Discipline Tracker</h2>
+
+<div class="date">
+📅 <span id="engDate"></span> | 🕌 <span id="hijriDate"></span>
+</div>
+
+<div class="search">
+  <input id="admission" placeholder="Registration ID">
+  <button onclick="search()">Search</button>
+</div>
+
+<div id="content"></div>
+
+<div class="buttons" id="buttons" style="display:none">
+  <button class="print" onclick="window.print()">🖨️ Print</button>
+  <button class="new" onclick="location.reload()">🔄 New Search</button>
+  <button class="pdf" onclick="downloadPDF()">📄 PDF</button>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+const TSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRS0rtQ6QZb88rLYbBZftXtXieRPLNl7EEu_Eybr-30dmrhvedcNVAIEBFbzcm9DvXo4QZytZGzRzLX/pub?gid=346857694&single=true&output=tsv";
+let rows=[];
+fetch(TSV_URL).then(r=>r.text()).then(t=>rows=t.trim().split("\n").map(r=>r.split("\t")));
+
+function search(){
+ const id=document.getElementById("admission").value.trim();
+ const r=rows.find(x=>x[0]===id);
+ if(!r){alert("ID not found");return;}
+
+ document.getElementById("content").innerHTML=`
+ <div class="section green">
+  <h3>🧠 Student Conduct Report</h3>
+  <div class="row"><span>Behaviour</span><b>${r[9]}</b></div>
+  <div class="row"><span>Discipline</span><b>${r[10]}</b></div>
+ </div>
+
+ <div class="section yellow">
+  <h3>📅 Daily Activities</h3>
+  <div class="row"><span>Activities</span><b>${r[11]}</b></div>
+  <div class="row"><span>Remarks</span><b>${r[12]}</b></div>
+ </div>
+
+ <div class="section purple">
+  <h3>📞 Contact Evaluation</h3>
+  <div class="row"><span>Parent Contact</span><b>${r[13]}</b></div>
+  <div class="row"><span>Feedback</span><b>${r[14]}</b></div>
+ </div>
+
+ <div class="signs">
+  <div class="sign">രക്ഷിതാവിന്റെ പേര് & ഒപ്പ്<br><br>Signature</div>
+  <div class="sign">പ്രിൻസിപ്പലിന്റെ ഒപ്പ് & സീൽ<br><br>Principal</div>
+ </div>
+
+ <div class="footer">
+  This is a computer-generated student report.<br>
+  ഇത് ഒരു കമ്പ്യൂട്ടർ ജനറേറ്റഡ് റിപ്പോർട്ടാണ്.
+ </div>
+ `;
+ document.getElementById("buttons").style.display="flex";
+}
+
+function downloadPDF(){
+ html2pdf().from(document.querySelector(".card")).set({
+  jsPDF:{format:"a4",unit:"mm"}
+ }).save("Student_Report.pdf");
+}
+
+document.getElementById("engDate").textContent=
+new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});
+document.getElementById("hijriDate").textContent=
+new Intl.DateTimeFormat("en-TN-u-ca-islamic",{day:"numeric",month:"long",year:"numeric"}).format(new Date());
+</script>
+
+</body>
+</html>
